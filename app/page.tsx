@@ -1,65 +1,135 @@
-import Image from "next/image";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Search, ShieldCheck, Truck, Users } from "lucide-react"
+import { categories, featuredProducts } from "@/lib/data"
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="flex-1">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-primary/10 to-secondary/30 py-20 lg:py-32">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-foreground">
+                Your Health, Our Priority
+              </h1>
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                Genuine medicines, lab tests, and wellness products delivered to your doorstep.
+              </p>
+            </div>
+            <div className="w-full max-w-sm space-y-2">
+              <form className="flex space-x-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    className="pl-9 bg-background"
+                    placeholder="Search medicines, health products..."
+                    type="search"
+                  />
+                </div>
+                <Button type="submit">Search</Button>
+              </form>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+              <Button asChild size="lg" className="rounded-full">
+                <Link href="/upload-prescription">Upload Prescription</Link>
+              </Button>
+              <Button variant="outline" size="lg" className="rounded-full" asChild>
+                <Link href="/products">Browse Medicines</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-12 md:py-24 lg:py-32 bg-background">
+        <div className="container px-4 md:px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold tracking-tight">Shop by Category</h2>
+            <Link href="/categories" className="text-sm font-medium text-primary hover:underline">
+              View all
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((category) => (
+              <Link key={category.id} href={`/category/${category.slug}`}>
+                <Card className="h-full hover:shadow-lg transition-shadow border-none bg-muted/30 hover:bg-muted/50">
+                  <CardContent className="flex flex-col items-center justify-center p-6 text-center space-y-4">
+                    <div className={`w-16 h-16 rounded-full ${category.color} flex items-center justify-center`}>
+                      {/* Placeholder for category icon/image */}
+                      <span className="text-2xl font-bold text-foreground/50">{category.name[0]}</span>
+                    </div>
+                    <span className="font-medium text-foreground">{category.name}</span>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
-  );
+      </section>
+
+      {/* Featured Products Section */}
+      <section className="py-12 md:py-24 lg:py-32 bg-secondary/20">
+        <div className="container px-4 md:px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold tracking-tight">Featured Products</h2>
+            <Link href="/products" className="text-sm font-medium text-primary hover:underline">
+              View all
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <Card key={product.id} className="overflow-hidden">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  {/* Placeholder image */}
+                  <span className="text-muted-foreground">Product Image</span>
+                </div>
+                <CardContent className="p-4">
+                  <div className="text-sm text-muted-foreground mb-1">{product.category}</div>
+                  <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-primary">${product.price.toFixed(2)}</span>
+                    <Button size="sm" variant="secondary">Add</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Indicators */}
+      <section className="py-12 bg-white">
+        <div className="container px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-4 bg-blue-50 rounded-full text-blue-600">
+                <ShieldCheck className="h-8 w-8" />
+              </div>
+              <h3 className="font-bold">100% Genuine Medicines</h3>
+              <p className="text-muted-foreground text-sm">Sourced directly from manufacturers.</p>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-4 bg-green-50 rounded-full text-green-600">
+                <Users className="h-8 w-8" />
+              </div>
+              <h3 className="font-bold">Trusted by Millions</h3>
+              <p className="text-muted-foreground text-sm">Over 10 million happy customers.</p>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-4 bg-orange-50 rounded-full text-orange-600">
+                <Truck className="h-8 w-8" />
+              </div>
+              <h3 className="font-bold">Fast Delivery</h3>
+              <p className="text-muted-foreground text-sm">Delivery within 24-48 hours.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  )
 }
