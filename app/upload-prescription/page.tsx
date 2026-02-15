@@ -9,9 +9,53 @@ import Link from "next/link"
 
 export default function UploadPrescriptionPage() {
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [dragActive, setDragActive] = useState(false)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true)
+        } else if (e.type === "dragleave") {
+            setDragActive(false)
+        }
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDragActive(false)
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFile(e.dataTransfer.files[0])
+        }
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault()
+        if (e.target.files && e.target.files[0]) {
+            handleFile(e.target.files[0])
+        }
+    }
+
+    const handleFile = (file: File) => {
+        setSelectedFile(file)
+        if (file.type.startsWith("image/")) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setPreviewUrl(null)
+        }
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        if (!selectedFile) return
+
         // Mock API call
         setTimeout(() => setIsSubmitted(true), 1000)
     }
@@ -51,16 +95,48 @@ export default function UploadPrescriptionPage() {
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid w-full items-center gap-1.5">
-                            <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors cursor-pointer">
+                            <label
+                                htmlFor="dropzone-file"
+                                className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${dragActive ? "border-primary bg-primary/10" : "border-muted-foreground/25 bg-muted/50 hover:bg-muted/70"
+                                    }`}
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={handleDrop}
+                            >
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
-                                    <p className="mb-2 text-sm text-muted-foreground">
-                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">PNG, JPG or PDF (MAX. 5MB)</p>
+                                    {previewUrl ? (
+                                        <div className="relative w-full h-32 mb-2">
+                                            <img
+                                                src={previewUrl}
+                                                alt="Prescription preview"
+                                                className="h-full object-contain mx-auto rounded-md"
+                                            />
+                                            <p className="text-xs text-center mt-1 text-muted-foreground">{selectedFile?.name}</p>
+                                        </div>
+                                    ) : selectedFile ? (
+                                        <div className="flex flex-col items-center">
+                                            <FileText className="w-10 h-10 mb-3 text-primary" />
+                                            <p className="text-sm font-medium">{selectedFile.name}</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
+                                            <p className="mb-2 text-sm text-muted-foreground">
+                                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">PNG, JPG or PDF (MAX. 5MB)</p>
+                                        </>
+                                    )}
                                 </div>
-                                <Input id="dropzone-file" type="file" className="hidden" required />
-                            </div>
+                                <input
+                                    id="dropzone-file"
+                                    type="file"
+                                    className="hidden"
+                                    onChange={handleChange}
+                                    accept="image/*,.pdf"
+                                />
+                            </label>
                         </div>
 
                         <div className="space-y-2">
@@ -74,7 +150,7 @@ export default function UploadPrescriptionPage() {
                             ></textarea>
                         </div>
 
-                        <Button type="submit" className="w-full" size="lg">
+                        <Button type="submit" className="w-full" size="lg" disabled={!selectedFile}>
                             <FileText className="mr-2 h-4 w-4" />
                             Submit Prescription
                         </Button>
