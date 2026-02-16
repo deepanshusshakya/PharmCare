@@ -23,8 +23,27 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([])
+    const [isInitialized, setIsInitialized] = useState(false)
 
-    // Load cart from local storage on mount (optional, skipping for simplicity or can add)
+    // Load cart from local storage on mount
+    useEffect(() => {
+        const storedCart = localStorage.getItem("vrindacare_cart")
+        if (storedCart) {
+            try {
+                setItems(JSON.parse(storedCart))
+            } catch (error) {
+                console.error("Failed to parse cart from localStorage:", error)
+            }
+        }
+        setIsInitialized(true)
+    }, [])
+
+    // Save to localStorage whenever items change
+    useEffect(() => {
+        if (isInitialized) {
+            localStorage.setItem("vrindacare_cart", JSON.stringify(items))
+        }
+    }, [items, isInitialized])
 
     const addItem = (newItem: CartItem) => {
         setItems((prev) => {
@@ -62,3 +81,4 @@ export function useCart() {
     }
     return context
 }
+

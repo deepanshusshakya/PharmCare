@@ -1,64 +1,127 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useProducts } from "@/components/providers/product-provider"
+import { useCart } from "@/components/providers/cart-provider"
+import { ShoppingCart, Check, Star } from "lucide-react"
 
 export default function ProductsPage() {
     const { products } = useProducts()
+    const { addItem } = useCart()
+    const [toast, setToast] = useState<string | null>(null)
+
+    const handleAddToCart = (e: React.MouseEvent, product: any) => {
+        e.preventDefault()
+        e.stopPropagation()
+        addItem({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            image: product.image
+        })
+
+        setToast(`${product.name} added to cart!`)
+        setTimeout(() => setToast(null), 3000)
+    }
 
     return (
-        <div className="container px-4 md:px-6 py-8">
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* Sidebar Filters (Mock) */}
-                <aside className="w-full md:w-64 space-y-6">
-                    <div>
-                        <h3 className="font-semibold mb-4">Categories</h3>
-                        <div className="space-y-2">
-                            {["Wellness", "Diabetes", "Baby Care", "Personal Care"].map((cat) => (
-                                <div key={cat} className="flex items-center space-x-2">
-                                    <input type="checkbox" id={cat} className="rounded border-gray-300" />
-                                    <label htmlFor={cat} className="text-sm">{cat}</label>
+        <div className="bg-gray-50/50 min-h-screen">
+            <div className="container px-4 md:px-6 py-12">
+                {/* Local Toast Feedback */}
+                {toast && (
+                    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300 flex items-center gap-2 font-bold text-sm">
+                        <Check className="h-4 w-4 text-green-400" />
+                        {toast}
+                    </div>
+                )}
+
+                <div className="flex flex-col md:flex-row gap-12">
+                    {/* Sidebar Filters */}
+                    <aside className="w-full md:w-72 space-y-8">
+                        <div className="bg-white p-6 rounded-3xl shadow-sm border">
+                            <h3 className="font-black text-gray-900 mb-6 uppercase text-xs tracking-widest">Filters</h3>
+                            <div className="space-y-6">
+                                <div>
+                                    <p className="text-sm font-bold text-gray-400 uppercase tracking-tighter mb-4">Categories</p>
+                                    <div className="space-y-3">
+                                        {["Wellness", "Diabetes", "Baby Care", "Personal Care", "Nutrition", "Ayurveda"].map((cat) => (
+                                            <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" className="w-5 h-5 rounded-lg border-gray-200 text-primary focus:ring-primary/20 transition-all" />
+                                                <span className="text-sm font-medium text-gray-600 group-hover:text-primary transition-colors">{cat}</span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Product Grid */}
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between mb-10">
+                            <div>
+                                <h1 className="text-3xl font-black text-gray-900">All <span className="text-primary">Medicines</span></h1>
+                                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Showing {products.length} Results</p>
+                            </div>
+                            <div className="hidden md:flex gap-2">
+                                <select className="bg-white border text-sm font-bold px-4 py-2 rounded-xl outline-none focus:border-primary transition-all">
+                                    <option>Sort by: Featured</option>
+                                    <option>Price: Low to High</option>
+                                    <option>Price: High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {products.map((product) => (
+                                <Link key={product.id} href={`/products/${product.id}`} className="group">
+                                    <Card className="overflow-hidden border-2 border-transparent hover:border-primary/10 transition-all duration-500 h-full flex flex-col rounded-[2.5rem] bg-white shadow-sm hover:shadow-2xl">
+                                        <div className="aspect-square bg-gray-50 flex items-center justify-center p-8 relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                                            {product.image && product.image !== "/images/placeholder.jpg" ? (
+                                                <img src={product.image} alt={product.name} className="object-contain w-full h-full" />
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-2 text-gray-300">
+                                                    <ShoppingCart className="h-12 w-12" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Image</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute top-4 left-4">
+                                                <div className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
+                                                    <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                                                    <span className="text-[10px] font-black text-gray-900">{product.rating || "4.5"}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <CardContent className="p-8 pt-6 flex flex-col flex-1">
+                                            <div className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">{product.category}</div>
+                                            <h3 className="font-bold text-lg text-gray-900 mb-6 group-hover:text-primary transition-colors leading-tight line-clamp-2">{product.name}</h3>
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Best Price</span>
+                                                    <span className="font-black text-2xl text-gray-900">₹{product.price.toLocaleString()}</span>
+                                                </div>
+                                                <Button
+                                                    size="icon"
+                                                    className="w-12 h-12 rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-90 transition-all"
+                                                    onClick={(e) => handleAddToCart(e, product)}
+                                                >
+                                                    <ShoppingCart className="h-5 w-5" />
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
                             ))}
                         </div>
-                    </div>
-                </aside>
-
-                {/* Product Grid */}
-                <div className="flex-1">
-                    <div className="flex items-center justify-between mb-6">
-                        <h1 className="text-2xl font-bold">All Medicines</h1>
-                        <span className="text-muted-foreground">{products.length} products</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {products.map((product) => (
-                            <Link key={product.id} href={`/products/${product.id}`}>
-                                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="aspect-square bg-muted flex items-center justify-center p-4">
-                                        {product.image && product.image !== "/images/placeholder.jpg" ? (
-                                            <img src={product.image} alt={product.name} className="object-cover w-full h-full" />
-                                        ) : (
-                                            <span className="text-muted-foreground text-xs text-center">No Image<br />Available</span>
-                                        )}
-                                    </div>
-                                    <CardContent className="p-4">
-                                        <div className="text-sm text-muted-foreground mb-1">{product.category}</div>
-                                        <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                                        <div className="flex items-center justify-between mt-4">
-                                            <span className="font-bold text-primary text-xl">₹{product.price.toFixed(2)}</span>
-                                            <Button size="sm">Add to Cart</Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </Link>
-                        ))}
                     </div>
                 </div>
             </div>
         </div>
     )
 }
+
 

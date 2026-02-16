@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from "react"
 import { useProducts } from "@/components/providers/product-provider"
 import { type Product } from "@/lib/data"
 import { useRouter, usePathname } from "next/navigation"
+import { Logo } from "@/components/ui/logo"
 
 export function SiteHeader() {
     const { items } = useCart()
@@ -72,9 +73,8 @@ export function SiteHeader() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex h-16 items-center justify-between gap-4">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 font-bold text-primary text-xl">
-                        <Pill className="h-6 w-6" />
-                        <span>VrindaCare</span>
+                    <Link href="/">
+                        <Logo />
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -128,11 +128,24 @@ export function SiteHeader() {
                                 {searchResults.length > 0 ? (
                                     <ul>
                                         {searchResults.map(product => (
-                                            <li key={product.id} className="p-2 hover:bg-muted cursor-pointer flex items-center gap-2" onClick={() => handleProductClick(product.id)}>
-                                                <div className="h-8 w-8 bg-muted rounded flex items-center justify-center text-xs">IMG</div>
-                                                <div>
-                                                    <p className="text-sm font-medium">{product.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{product.category}</p>
+                                            <li
+                                                key={product.id}
+                                                className="p-3 hover:bg-muted cursor-pointer flex items-center gap-3 border-b border-muted/50 last:border-0"
+                                                onClick={() => handleProductClick(product.id)}
+                                            >
+                                                <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center overflow-hidden border">
+                                                    <img
+                                                        src={product.image || "/images/placeholder.jpg"}
+                                                        alt={product.name}
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold text-foreground leading-tight">{product.name}</p>
+                                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{product.category}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-sm font-black text-primary">₹{product.price}</p>
                                                 </div>
                                             </li>
                                         ))}

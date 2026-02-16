@@ -28,14 +28,20 @@ export default function CartPage() {
                     {items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
                             <div className="flex items-center space-x-4">
-                                <div className="h-16 w-16 bg-muted rounded"></div>
+                                <div className="h-16 w-16 bg-muted rounded flex items-center justify-center overflow-hidden">
+                                    {item.image && item.image !== "/images/placeholder.jpg" ? (
+                                        <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
+                                    ) : (
+                                        <span className="text-[10px] text-muted-foreground text-center">No Image</span>
+                                    )}
+                                </div>
                                 <div>
                                     <h3 className="font-medium">{item.name}</h3>
                                     <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-4">
-                                <span className="font-bold">${(item.price * item.quantity).toFixed(2)}</span>
+                                <span className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</span>
                                 <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
                                     <Trash2 className="h-5 w-5 text-red-500" />
                                 </Button>
@@ -52,7 +58,7 @@ export default function CartPage() {
                         <h3 className="font-semibold text-lg">Order Summary</h3>
                         <div className="flex justify-between">
                             <span>Subtotal</span>
-                            <span>${total.toFixed(2)}</span>
+                            <span>₹{total.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm text-muted-foreground">
                             <span>Shipping</span>
@@ -60,9 +66,11 @@ export default function CartPage() {
                         </div>
                         <div className="border-t pt-4 flex justify-between font-bold text-lg">
                             <span>Total</span>
-                            <span>${total.toFixed(2)}</span>
+                            <span>₹{total.toFixed(2)}</span>
                         </div>
-                        <Button className="w-full" size="lg">Checkout</Button>
+                        <Button className="w-full" size="lg" asChild>
+                            <Link href="/checkout">Proceed to Checkout</Link>
+                        </Button>
                     </div>
                 </div>
             </div>

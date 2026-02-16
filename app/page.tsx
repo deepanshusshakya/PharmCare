@@ -7,10 +7,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Search as SearchIcon, ShieldCheck as ShieldIcon, Truck as TruckIcon, Users as UsersIcon } from "lucide-react"
 import { categories } from "@/lib/data"
 import { useProducts } from "@/components/providers/product-provider"
+import { useCart } from "@/components/providers/cart-provider"
 
 export default function Home() {
   const { products } = useProducts()
+  const { addItem } = useCart()
   const featuredDisplayProducts = products.slice(0, 4)
+
+  const handleAddToCart = (product: any) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image
+    })
+    alert(`${product.name} added to cart!`)
+  }
 
   return (
     <main className="flex-1">
@@ -88,22 +101,27 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {featuredDisplayProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden">
-                <div className="aspect-square bg-muted flex items-center justify-center relative">
-                  {product.image && product.image !== "/images/placeholder.jpg" ? (
-                    <img src={product.image} alt={product.name} className="object-cover w-full h-full" />
-                  ) : (
-                    <span className="text-muted-foreground">Product Image</span>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground mb-1">{product.category}</div>
-                  <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-primary">₹{product.price.toFixed(2)}</span>
-                    <Button size="sm" variant="secondary">Add</Button>
+              <Card key={product.id} className="overflow-hidden flex flex-col">
+                <Link href={`/products/${product.id}`} className="flex-1">
+                  <div className="aspect-square bg-muted flex items-center justify-center relative">
+                    {product.image && product.image !== "/images/placeholder.jpg" ? (
+                      <img src={product.image} alt={product.name} className="object-cover w-full h-full" />
+                    ) : (
+                      <span className="text-muted-foreground">Product Image</span>
+                    )}
                   </div>
-                </CardContent>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">{product.category}</div>
+                    <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-primary">₹{product.price.toFixed(2)}</span>
+                      <Button size="sm" variant="secondary" onClick={(e) => {
+                        e.preventDefault()
+                        handleAddToCart(product)
+                      }}>Add</Button>
+                    </div>
+                  </CardContent>
+                </Link>
               </Card>
             ))}
           </div>
@@ -141,4 +159,5 @@ export default function Home() {
     </main>
   )
 }
+
 

@@ -60,6 +60,16 @@
   --radius-sm: calc(var(--radius) - 4px);
 }
 
+@keyframes scanning {
+  0% { top: 0; }
+  50% { top: 100%; }
+  100% { top: 0; }
+}
+
+.animate-scanning {
+  animation: scanning 2s linear infinite;
+}
+
 @layer base {
   body {
     background-color: var(--background);

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Package, User } from "lucide-react"
+import Link from "next/link"
 
 export default function DashboardPage() {
     return (
@@ -31,7 +32,9 @@ export default function DashboardPage() {
                                 <span className="text-blue-600">Processing</span>
                             </div>
                         </div>
-                        <Button className="w-full mt-4" variant="outline" size="sm">View All Orders</Button>
+                        <Button className="w-full mt-4" variant="outline" size="sm" asChild>
+                            <Link href="/dashboard/orders">View All Orders</Link>
+                        </Button>
                     </CardContent>
                 </Card>
 
@@ -58,7 +61,9 @@ export default function DashboardPage() {
                                 <span className="text-yellow-600">Pending</span>
                             </div>
                         </div>
-                        <Button className="w-full mt-4" variant="outline" size="sm">Manage Prescriptions</Button>
+                        <Button className="w-full mt-4" variant="outline" size="sm" asChild>
+                            <Link href="/dashboard/prescriptions">Manage Prescriptions</Link>
+                        </Button>
                     </CardContent>
                 </Card>
 
@@ -84,7 +89,9 @@ export default function DashboardPage() {
                             <p className="text-muted-foreground">Phone: +1 234 567 890</p>
                             <p className="text-muted-foreground">Address: 123 Main St, New York</p>
                         </div>
-                        <Button className="w-full mt-4" variant="outline" size="sm">Edit Profile</Button>
+                        <Button className="w-full mt-4" variant="outline" size="sm" asChild>
+                            <Link href="/dashboard/profile">Edit Profile</Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Upload, FileText, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { store } from "@/lib/store"
 
 export default function UploadPrescriptionPage() {
     const [isSubmitted, setIsSubmitted] = useState(false)
@@ -55,6 +56,16 @@ export default function UploadPrescriptionPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!selectedFile) return
+
+        // Save to store
+        store.savePrescription({
+            id: `RX-${Math.floor(100 + Math.random() * 899)}`,
+            patient: "Current User", // In a real app, this would be from auth
+            uploadedBy: "Self",
+            time: "Just now",
+            status: "Pending",
+            notes: (document.getElementById("notes") as HTMLTextAreaElement)?.value || ""
+        })
 
         // Mock API call
         setTimeout(() => setIsSubmitted(true), 1000)
