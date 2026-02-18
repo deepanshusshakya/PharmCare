@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -63,9 +64,18 @@ export default function AdminDashboard() {
         image: ""
     })
 
+    // Added states for filtering
+    const [selectedCategory, setSelectedCategory] = useState("All")
+    const [selectedStatus, setSelectedStatus] = useState("All")
+
     useEffect(() => {
         refreshData()
     }, [])
+
+    useEffect(() => {
+        setSelectedCategory("All")
+        setSelectedStatus("All")
+    }, [activeTab])
 
     const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
         setToast({ message, type })
@@ -93,27 +103,35 @@ export default function AdminDashboard() {
     }
 
     // Derived Filtered Data
-    const filteredProducts = products.filter(p =>
-        !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredProducts = products.filter(p => {
+        const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.category.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesCategory = selectedCategory === "All" || p.category === selectedCategory
+        return matchesSearch && matchesCategory
+    })
 
-    const filteredOrders = orders.filter(o =>
-        !searchQuery || o.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        o.id.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredOrders = orders.filter(o => {
+        const matchesSearch = !searchQuery || o.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            o.id.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesStatus = selectedStatus === "All" || o.status === selectedStatus
+        return matchesSearch && matchesStatus
+    })
 
-    const filteredPrescriptions = prescriptions.filter(p =>
-        !searchQuery || p.patient.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.id.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredPrescriptions = prescriptions.filter(p => {
+        const matchesSearch = !searchQuery || p.patient.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.id.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesStatus = selectedStatus === "All" || p.status === selectedStatus
+        return matchesSearch && matchesStatus
+    })
 
-    const filteredInquiries = inquiries.filter(i =>
-        !searchQuery || i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i.email.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredInquiries = inquiries.filter(i => {
+        const matchesSearch = !searchQuery || i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            i.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            i.email.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesStatus = selectedStatus === "All" || i.status === selectedStatus
+        return matchesSearch && matchesStatus
+    })
 
     const filteredUsers = users.filter(u =>
         !searchQuery || u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -427,7 +445,7 @@ export default function AdminDashboard() {
                                 <div className="space-y-8">
                                     <div className="p-6 bg-white border shadow-sm rounded-2xl space-y-4">
                                         <div className="flex items-center gap-4 border-b pb-4">
-                                            <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-blue-200">{modal.data.name[0]}</div>
+                                            <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-blue-200">{modal.data.name?.[0] || 'I'}</div>
                                             <div>
                                                 <p className="font-black text-gray-900 text-lg tracking-tight">{modal.data.name}</p>
                                                 <p className="text-xs font-bold text-blue-600">{modal.data.email}</p>
@@ -449,6 +467,54 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                             )}
+
+                            {(modal.type as any) === "notification" && (
+                                <div className="space-y-4">
+                                    {[
+                                        { title: "New Order", desc: "Order #ORD-2412 received from Shivam", time: "Just now", icon: ShoppingCart, color: "text-primary bg-primary/10" },
+                                        { title: "Prescription Uploaded", desc: "Deepanshu uploaded a new prescription", time: "5 mins ago", icon: FileText, color: "text-emerald-600 bg-emerald-50" },
+                                        { title: "Stock Alert", desc: "Digital Thermometer is running low (2 left)", time: "1 hour ago", icon: Package, color: "text-amber-600 bg-amber-50" },
+                                    ].map((n, i) => (
+                                        <div key={i} className="flex items-start gap-4 p-4 rounded-2xl border hover:bg-gray-50 transition-colors cursor-pointer">
+                                            <div className={`p-2 rounded-xl ${n.color}`}>
+                                                <n.icon className="h-5 w-5" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="font-bold text-sm text-gray-900">{n.title}</p>
+                                                <p className="text-xs text-gray-500 mt-1">{n.desc}</p>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase mt-2 tracking-widest">{n.time}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Button className="w-full mt-4" variant="outline" onClick={() => setModal(null)}>Mark All as Read</Button>
+                                </div>
+                            )}
+
+                            {(modal.type as any) === "settings" && (
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-gray-700">Store Name</label>
+                                            <Input defaultValue="Vrindacare Pharmacy" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-gray-700">Support Email</label>
+                                            <Input defaultValue="support@vrindacare.com" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-gray-700">Currency</label>
+                                            <select className="w-full px-4 py-2 border rounded-lg outline-none text-sm bg-white">
+                                                <option>INR (₹)</option>
+                                                <option>USD ($)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="pt-4 border-t space-y-3">
+                                        <Button className="w-full h-12 font-black" onClick={() => { showToast("Settings saved"); setModal(null); }}>Save Changes</Button>
+                                        <Button variant="outline" className="w-full h-12 font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-100" onClick={() => setModal(null)}>Cancel</Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -458,16 +524,16 @@ export default function AdminDashboard() {
             <div className={`${sidebarOpen ? 'w-72' : 'w-24'} bg-white border-r transition-all duration-500 hidden md:flex flex-col z-40 shadow-sm relative`}>
                 <div className="p-8 flex items-center justify-between">
                     {sidebarOpen ? (
-                        <div className="flex items-center gap-3">
+                        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
                                 <Pill className="h-6 w-6 text-primary" />
                             </div>
                             <span className="text-xl font-black text-gray-900 tracking-tight">Vrindacare</span>
-                        </div>
+                        </Link>
                     ) : (
-                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto border border-primary/20">
+                        <Link href="/" className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto border border-primary/20 hover:opacity-80 transition-opacity">
                             <Pill className="h-6 w-6 text-primary" />
-                        </div>
+                        </Link>
                     )}
                 </div>
 
@@ -535,14 +601,14 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-4">
                         <button
                             className="p-3 bg-gray-50 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all relative border shadow-sm"
-                            onClick={() => showToast("You have 3 new notifications", "info")}
+                            onClick={() => setModal({ type: "notification" as any, data: {} })}
                         >
                             <Bell className="h-5 w-5" />
                             <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
                         </button>
                         <button
                             className="p-3 bg-gray-50 text-gray-500 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all border shadow-sm"
-                            onClick={() => showToast("Settings panel coming soon", "info")}
+                            onClick={() => setModal({ type: "settings" as any, data: {} })}
                         >
                             <Settings className="h-5 w-5" />
                         </button>
@@ -564,12 +630,16 @@ export default function AdminDashboard() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {[
-                                    { label: "Orders", value: stats.totalOrders, icon: ShoppingCart, trend: stats.ordersTrend, color: "emerald", bg: "bg-emerald-50", text: "text-emerald-600" },
-                                    { label: "Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, trend: stats.revenueTrend, color: "blue", bg: "bg-blue-50", text: "text-blue-600" },
-                                    { label: "Users", value: stats.activeUsers, icon: Users, trend: stats.usersTrend, color: "purple", bg: "bg-purple-50", text: "text-purple-600" },
-                                    { label: "Verification", value: stats.pendingPrescriptions, icon: Pill, trend: stats.prescriptionsTrend, color: "amber", bg: "bg-amber-50", text: "text-amber-600" },
+                                    { label: "Orders", value: stats.totalOrders, icon: ShoppingCart, trend: stats.ordersTrend, color: "emerald", bg: "bg-emerald-50", text: "text-emerald-600", tab: "orders" },
+                                    { label: "Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, trend: stats.revenueTrend, color: "blue", bg: "bg-blue-50", text: "text-blue-600", tab: "dashboard" },
+                                    { label: "Users", value: stats.activeUsers, icon: Users, trend: stats.usersTrend, color: "purple", bg: "bg-purple-50", text: "text-purple-600", tab: "users" },
+                                    { label: "Verification", value: stats.pendingPrescriptions, icon: Pill, trend: stats.prescriptionsTrend, color: "amber", bg: "bg-amber-50", text: "text-amber-600", tab: "prescriptions" },
                                 ].map((stat, i) => (
-                                    <Card key={i} className="border-none shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 cursor-default group overflow-hidden relative">
+                                    <Card
+                                        key={i}
+                                        className="border-none shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 cursor-pointer group overflow-hidden relative active:scale-95"
+                                        onClick={() => stat.tab && setActiveTab(stat.tab)}
+                                    >
                                         <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} rounded-full -mr-12 -mt-12 transition-transform duration-500 group-hover:scale-110 opacity-50`} />
                                         <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
                                             <CardTitle className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{stat.label}</CardTitle>
@@ -705,8 +775,12 @@ export default function AdminDashboard() {
                                             <Filter className="h-4 w-4 text-gray-400" />
                                         </div>
                                         <div className="flex gap-2">
-                                            {["All", "Medicines", "Wellness", "Wellness"].map(cat => (
-                                                <button key={cat} className="px-4 py-1.5 bg-white border rounded-full text-xs font-bold text-gray-500 hover:border-primary hover:text-primary transition-all shadow-sm">
+                                            {["All", "Medicines", "Wellness", "Diabetes", "Personal Care"].map(cat => (
+                                                <button
+                                                    key={cat}
+                                                    onClick={() => setSelectedCategory(cat)}
+                                                    className={`px-4 py-1.5 border rounded-full text-xs font-bold transition-all shadow-sm ${selectedCategory === cat ? "bg-primary text-white border-primary" : "bg-white text-gray-500 hover:border-primary hover:text-primary"}`}
+                                                >
                                                     {cat}
                                                 </button>
                                             ))}
@@ -804,8 +878,17 @@ export default function AdminDashboard() {
                                 <div className="p-6 border-b bg-gray-50/50 flex flex-wrap items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
                                         <div className="flex gap-2">
-                                            {["All", "Pending", "Success", "Secondary"].map(f => (
-                                                <button key={f} className="px-5 py-2 bg-white border rounded-xl text-xs font-black text-gray-500 hover:border-primary hover:text-primary transition-all shadow-sm uppercase tracking-widest">
+                                            {["All", "Pending", "Shipped", "Delivered", "Cancelled", "Approved", "Rejected", "New"].filter(f => {
+                                                if (activeTab === "orders") return ["All", "Pending", "Shipped", "Delivered", "Cancelled"].includes(f)
+                                                if (activeTab === "prescriptions") return ["All", "Pending", "Approved", "Rejected"].includes(f)
+                                                if (activeTab === "inquiries") return ["All", "New", "Read", "Replied"].includes(f)
+                                                return false
+                                            }).map(f => (
+                                                <button
+                                                    key={f}
+                                                    onClick={() => setSelectedStatus(f)}
+                                                    className={`px-5 py-2 border rounded-xl text-xs font-black transition-all shadow-sm uppercase tracking-widest ${selectedStatus === f ? "bg-primary text-white border-primary" : "bg-white text-gray-500 hover:border-primary hover:text-primary"}`}
+                                                >
                                                     {f}
                                                 </button>
                                             ))}
