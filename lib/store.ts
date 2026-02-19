@@ -37,6 +37,8 @@ export type User = {
     email: string
     orders: number
     joined: string
+    phone?: string
+    address?: string
 }
 
 const ORDERS_KEY = "vrindacare_orders"
@@ -127,7 +129,9 @@ export const store = {
             email,
             name,
             orders: 0,
-            joined: new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+            joined: new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
+            phone: "+91 98765 43210",
+            address: "123 Health Dr, Wellness City, India"
         }
         localStorage.setItem("vrindacare_current_user", JSON.stringify(user))
         // Also save to users list if not exists

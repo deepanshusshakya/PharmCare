@@ -5,20 +5,40 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, User, Mail, Phone, MapPin } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { store } from "@/lib/store"
 
 export default function ProfilePage() {
+    const router = useRouter()
     const [profile, setProfile] = useState({
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+91 98765 43210",
-        address: "123 Health Dr, Wellness City, India"
+        name: "",
+        email: "",
+        phone: "",
+        address: ""
     })
+
+    useEffect(() => {
+        const user = store.getCurrentUser()
+        if (!user) {
+            router.push("/login")
+        } else {
+            setProfile({
+                name: user.name || "",
+                email: user.email || "",
+                phone: user.phone || "+91 98765 43210",
+                address: user.address || "123 Health Dr, Wellness City, India"
+            })
+        }
+    }, [router])
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault()
+        // In a real app, we would update the store/API here
         alert("Profile updated successfully!")
     }
+
+    if (!profile.email) return null
 
     return (
         <div className="container px-4 py-8">
@@ -51,7 +71,7 @@ export default function ProfilePage() {
                                     <label className="text-sm font-medium">Email Address</label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                        <Input className="pl-10" type="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
+                                        <Input className="pl-10" type="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} disabled />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
@@ -69,7 +89,7 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                             </div>
-                            <Button type="submit" className="w-full sm:w-auto px-8">Update Profile</Button>
+                            <Button type="submit" className="w-full sm:w-auto px-8 font-bold">Update Profile</Button>
                         </form>
                     </CardContent>
                 </Card>

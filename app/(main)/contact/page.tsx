@@ -1,14 +1,16 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { MapPin, Phone, Mail, Clock, CheckCircle2, Send, ExternalLink, Loader2, HelpCircle, ChevronDown, ChevronUp, Facebook, Instagram, Twitter } from "lucide-react"
-import { store } from "@/lib/store"
+export const dynamic = "force-dynamic";
 
-export default function ContactPage() {
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { MapPin, Phone, Mail, Clock, CheckCircle2, Send, ExternalLink, Loader2, HelpCircle, ChevronDown, ChevronUp, Facebook, Instagram, Twitter } from "lucide-react";
+import { store } from "@/lib/store";
+
+function ContactFormContent() {
     const searchParams = useSearchParams()
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -343,3 +345,16 @@ export default function ContactPage() {
         </div>
     )
 }
+
+export default function ContactPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+                <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
+            </div>
+        }>
+            <ContactFormContent />
+        </Suspense>
+    )
+}
+
