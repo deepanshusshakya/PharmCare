@@ -115,5 +115,31 @@ export const store = {
         const users = store.getUsers()
         const updated = users.filter(u => u.id !== id)
         localStorage.setItem(USERS_KEY, JSON.stringify(updated))
+    },
+    getCurrentUser: (): User | null => {
+        if (typeof window === "undefined") return null
+        const saved = localStorage.getItem("vrindacare_current_user")
+        return saved ? JSON.parse(saved) : null
+    },
+    login: (email: string, name: string) => {
+        const user: User = {
+            id: `USR-${Math.floor(Math.random() * 1000)}`,
+            email,
+            name,
+            orders: 0,
+            joined: new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+        }
+        localStorage.setItem("vrindacare_current_user", JSON.stringify(user))
+        // Also save to users list if not exists
+        const users = store.getUsers()
+        if (!users.find(u => u.email === email)) {
+            store.saveUser(user)
+        }
+        window.dispatchEvent(new Event("auth-change"))
+        return user
+    },
+    logout: () => {
+        localStorage.removeItem("vrindacare_current_user")
+        window.dispatchEvent(new Event("auth-change"))
     }
 }

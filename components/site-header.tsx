@@ -10,6 +10,7 @@ import { useProducts } from "@/components/providers/product-provider"
 import { type Product } from "@/lib/data"
 import { useRouter, usePathname } from "next/navigation"
 import { Logo } from "@/components/ui/logo"
+import { store, type User as UserType } from "@/lib/store"
 
 export function SiteHeader() {
     const { items } = useCart()
@@ -20,6 +21,16 @@ export function SiteHeader() {
     const searchRef = useRef<HTMLDivElement>(null)
     const router = useRouter()
     const pathname = usePathname()
+    const [user, setUser] = useState<UserType | null>(null)
+
+    useEffect(() => {
+        const checkAuth = () => {
+            setUser(store.getCurrentUser())
+        }
+        checkAuth()
+        window.addEventListener("auth-change", checkAuth)
+        return () => window.removeEventListener("auth-change", checkAuth)
+    }, [])
 
     const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -173,16 +184,38 @@ export function SiteHeader() {
                                 <span className="sr-only">Cart</span>
                             </Link>
                         </Button>
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href="/dashboard">
-                                <User className="h-5 w-5" />
-                                <span className="sr-only">Account</span>
-                            </Link>
-                        </Button>
+
+                        {user ? (
+                            <div className="flex items-center gap-3">
+                                <Button variant="ghost" size="icon" asChild className="hidden md:flex">
+                                    <Link href="/dashboard">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold border border-emerald-200">
+                                            {user.name.charAt(0)}
+                                        </div>
+                                    </Link>
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        store.logout()
+                                        router.push("/")
+                                    }}
+                                    className="hidden md:flex text-muted-foreground hover:text-red-600"
+                                >
+                                    Logout
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button variant="ghost" size="sm" asChild className="hidden md:flex font-semibold text-emerald-700">
+                                <Link href="/login">Login</Link>
+                            </Button>
+                        )}
+
                         <Button variant="ghost" size="icon" className="md:hidden">
                             <Menu className="h-5 w-5" />
                         </Button>
-                        <Button className="hidden md:inline-flex" asChild>
+                        <Button className="hidden md:inline-flex bg-emerald-600 hover:bg-emerald-700 text-white" asChild>
                             <Link href="/upload-prescription">Upload Prescription</Link>
                         </Button>
                     </div>
